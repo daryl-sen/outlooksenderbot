@@ -10,7 +10,7 @@ except ImportError:
 
 
 # settings
-pag.PAUSE = 2 # interval between each action
+pag.PAUSE = 0.5 # interval between each action
 pag.FAILSAFE = True # if set to true, script will stop when you move the cursor to the top left corner of the screen
 run = True # if set to False, the script will do all the prep work but will not run the last send_cycle function
 mode = 'discard' # if mode is set to 'discard' instead of 'send', the script will discard every email after constructing them
@@ -49,6 +49,7 @@ def start(run, mode):
         pag.click(new_loc['x'], new_loc['y'])
     else:
         pag.click(inbox_loc['x'], inbox_loc['y'])
+        time.sleep(1) # wait for slower connections to open 
         new_loc = find_coord('new', 0.8)
         if new_loc == None:
             return print("Fatal error, could not find the 'new button' location.")
@@ -58,9 +59,10 @@ def start(run, mode):
     send_loc = find_coord('send', 0.8)
     discard_loc = find_coord('discard', 0.8)
     subject_loc = find_coord('subject', 0.8)
-    body_loc = find_coord('body', 0.8)
     if subject_loc is not None:
-        subject_loc = {'x': subject_loc['x']+15, 'y':subject_loc['y']+30}
+        subject_loc = {'x': subject_loc['x']+15, 'y':subject_loc['y']+35}
+        print('Subject location tweaked.')
+    body_loc = find_coord('body', 0.8)
 
     loc_list = (new_loc,
         subject_loc,
@@ -114,7 +116,9 @@ def start(run, mode):
         pag.typewrite(f"{email}")
 
         # click on the subject field
-        pag.click(x = subject_loc['x'], y = subject_loc['y'], clicks = 3)
+        pag.click(x = subject_loc['x'], y = subject_loc['y'])
+        pag.click(x = subject_loc['x'], y = subject_loc['y']) # second click to dismiss autosuggestions
+        pag.click(x = subject_loc['x'], y = subject_loc['y']) # third click to focus back on subject field
 
         # enter the subject
         pag.typewrite(subject)
