@@ -1,21 +1,28 @@
 import pyautogui as pag
 import time
 try:
-    from data import names, emails, message
+    from data import names, emails, subject, message
 except ImportError:
     print("data.py not found. Please open README.txt for instructions.")
     exit()
 
 
-# settings for pyautogui
-pag.PAUSE = 1
-pag.FAILSAFE = True
 
 
+# settings
+pag.PAUSE = 2 # interval between each action
+pag.FAILSAFE = True # if set to true, script will stop when you move the cursor to the top left corner of the screen
+run = True # if set to False, the script will do all the prep work but will not run the last send_cycle function
+mode = 'discard' # if mode is set to 'discard' instead of 'send', the script will discard every email after constructing them
+
+
+
+
+# DO NOT EDIT ANYTHING AFTER THIS LINE UNLESS YOU KNOW WHAT YOU'RE DOING
+###########################################################################################################
 
 def start(run, mode):
     print("Script has began running...")
-
 
 
     # calibrate button locations
@@ -90,6 +97,8 @@ def start(run, mode):
             n += 1
 
     print("Preparation is complete.")
+    if run == False:
+        print("Script is ready to proceed, please set the 'run' variable to True in 'run.py'.")
 
 
 
@@ -105,10 +114,10 @@ def start(run, mode):
         pag.typewrite(f"{email}")
 
         # click on the subject field
-        pag.click(x = subject_loc['x'], y = subject_loc['y'], clicks = 2)
+        pag.click(x = subject_loc['x'], y = subject_loc['y'], clicks = 3)
 
         # enter the subject
-        pag.typewrite("Life Transitions Study - Welcome Email")
+        pag.typewrite(subject)
 
         # click on the email body field
         pag.click(body_loc['x'], body_loc['y'])
@@ -138,8 +147,5 @@ def start(run, mode):
 
 
 
-# start(run, mode)
-# if run is set to False, the script will do all the prep work but will not run the last send_cycle function
-# if mode is set to 'discard' instead of 'send', the script will discard every email after constructing them
 if __name__ == "__main__":
-    start(False, 'discard')
+    start(run, mode)
