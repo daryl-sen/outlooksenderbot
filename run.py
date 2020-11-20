@@ -10,7 +10,7 @@ except ImportError:
 
 
 # settings
-pag.PAUSE = 0.5 # interval between each action
+pag.PAUSE = 1 # interval between each action
 pag.FAILSAFE = True # if set to true, script will stop when you move the cursor to the top left corner of the screen
 run = True # if set to False, the script will do all the prep work but will not run the last send_cycle function
 mode = 'discard' # if mode is set to 'discard' instead of 'send', the script will discard every email after constructing them
@@ -33,13 +33,14 @@ def start(run, mode):
             return None
         else:
             print(f"'{image}' found.")
-            return {'x': loc.left + 5, 'y': loc.top + 3}
+            return {'x': loc.left + 15, 'y': loc.top + 3}
     
     print("Calibrating button locations")
     inbox_loc = find_coord('inbox', 0.7)
     if inbox_loc == None:
         inbox_loc = find_coord('inboxd', 0.7)
         if inbox_loc is not None:
+            inbox_loc = find_coord('inboxd', 0.7)
             print('Found dark-colored inbox instead')
         else:
             return print('Fatal error, could not find regular or dark-colored inbox button. Script terminated.')
@@ -64,7 +65,9 @@ def start(run, mode):
         print('Subject location tweaked.')
     body_loc = find_coord('body', 0.8)
 
-    loc_list = (new_loc,
+    loc_list = (
+        inbox_loc,
+        new_loc,
         subject_loc,
         body_loc,
         send_loc,
@@ -74,7 +77,35 @@ def start(run, mode):
     if None in loc_list:
         return print("Script terminated due to missing coordinate(s).")
     
-    print("Button coordinates calibration complete...")
+    print("Button coordinates calibration complete, please check the coordinates now.")
+    print("This is the 'inbox' button location (see cursor)")
+    pag.moveTo(inbox_loc['x'], inbox_loc['y'])
+    time.sleep(1)
+    pag.click()
+    print("This is the 'new' button location (see cursor)")
+    pag.moveTo(new_loc['x'], new_loc['y'])
+    time.sleep(1)
+    pag.click()
+    print("This is the 'subject' field location (see cursor)")
+    pag.moveTo(subject_loc['x'], subject_loc['y'])
+    time.sleep(1)
+    print("This is the 'body' field location (see cursor)")
+    pag.moveTo(body_loc['x'], body_loc['y'])
+    time.sleep(1)
+    print("This is the 'send' button location (see cursor)")
+    pag.moveTo(send_loc['x'], send_loc['y'])
+    time.sleep(1)
+    print("This is the 'discard' button location (see cursor)")
+    pag.moveTo(discard_loc['x'], discard_loc['y'])
+    time.sleep(1)
+    print("Move cursor to the top right corner to terminate the script if you found any errors.")
+    time.sleep(1)
+    print("Proceeding in 3..")
+    time.sleep(1)
+    print("Proceeding in 2..")
+    time.sleep(1)
+    print("Proceeding in 1..")
+    time.sleep(1)
 
 
 
@@ -90,7 +121,7 @@ def start(run, mode):
     if len(email_list) != len(name_list):
         print("No. of emails: " + str(len(email_list)))
         print("No. of names: " + str(len(name_list)))
-        print("ERROR: The list of names and list of emails do not match up.")
+        return print("ERROR: The list of names and list of emails do not match up.")
     elif len(email_list) == len(name_list):
         print(f'({len(contacts)} contacts loaded.)')
         n = 1
@@ -100,41 +131,47 @@ def start(run, mode):
 
     print("Preparation is complete.")
     if run == False:
-        print("Script is ready to proceed, please set the 'run' variable to True in 'run.py'.")
+        return print("Script is ready to proceed, please set the 'run' variable to True in 'run.py'.")
 
 
 
 
     def send_cycle(action, name, email):
         # click on the inbox link (new cycle)
+        pag.moveTo(inbox_loc['x'], inbox_loc['y'])
         pag.click(inbox_loc['x'], inbox_loc['y'])
 
         # click on the "new email" button
+        pag.moveTo(new_loc['x'], new_loc['y'])
         pag.click(new_loc['x'], new_loc['y'])
 
         # enter the email
         pag.typewrite(f"{email}")
 
         # click on the subject field
+        pag.moveTo(x = subject_loc['x'], y = subject_loc['y'])
         pag.click(x = subject_loc['x'], y = subject_loc['y'])
-        pag.click(x = subject_loc['x'], y = subject_loc['y']) # second click to dismiss autosuggestions
-        pag.click(x = subject_loc['x'], y = subject_loc['y']) # third click to focus back on subject field
+        pag.click(x = subject_loc['x'], y = subject_loc['y'])
 
         # enter the subject
         pag.typewrite(subject)
 
         # click on the email body field
+        pag.moveTo(body_loc['x'], body_loc['y'])
         pag.click(body_loc['x'], body_loc['y'])
 
         # enter salutation
         pag.typewrite(f"Dear {name},\n\n")
         pag.typewrite(message)
+        time.sleep(1)
 
         # hit sent/discard
         if action == "send":
+            pag.moveTo(send_loc['x'], send_loc['y'])
             pag.click(send_loc['x'], send_loc['y'])
         elif action == "discard":
-            pag.click(discard_loc['x'], discard_loc['y'])
+            pag.moveTo(x = discard_loc['x'], y = discard_loc['y'])
+            pag.click(x = discard_loc['x'], y = discard_loc['y'])
             pag.typewrite(['enter'])
             
 
@@ -153,3 +190,4 @@ def start(run, mode):
 
 if __name__ == "__main__":
     start(run, mode)
+    print("Script has finished running.")
